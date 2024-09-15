@@ -1,3 +1,4 @@
+// Chatbot toggler, close button, and input elements
 const chatbotToggler = document.querySelector(".chatbot-toggler");
 const closeBtn = document.querySelector(".close-btn");
 const chatbox = document.querySelector(".chatbox");
@@ -11,6 +12,7 @@ const inputInitHeight = chatInput.scrollHeight;
 const API_KEY = "AIzaSyBYb7Kq0wLCf4Jp1zWhrv8rloeDLikZ0Qw"; // Your API key here
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
 
+// Function to create chat message HTML
 const createChatLi = (message, className) => {
   const chatLi = document.createElement("li");
   chatLi.classList.add("chat", className);
@@ -20,8 +22,9 @@ const createChatLi = (message, className) => {
   chatLi.innerHTML = chatContent;
   chatLi.querySelector("p").textContent = message;
   return chatLi;
-}
+};
 
+// Function to generate and append chatbot response
 const generateResponse = async (chatElement) => {
   const messageElement = chatElement.querySelector("p");
 
@@ -35,9 +38,9 @@ const generateResponse = async (chatElement) => {
         parts: [{ text: userMessage }] 
       }] 
     }),
-  }
+  };
 
-  // Send POST request to API, get response and set the response as paragraph text
+  // Send POST request to API, get response, and set the response as paragraph text
   try {
     const response = await fetch(API_URL, requestOptions);
     const data = await response.json();
@@ -48,15 +51,16 @@ const generateResponse = async (chatElement) => {
   } catch (error) {
     // Handle error
     messageElement.classList.add("error");
-    messageElement.textContent = error.message;
+    messageElement.textContent = "Error: " + error.message;
   } finally {
-    chatbox.scrollTo(0, chatbox.scrollHeight);
+    chatbox.scrollTo(0, chatbox.scrollHeight); // Scroll to the latest message
   }
-}
+};
 
+// Handle sending of the chat message
 const handleChat = () => {
-  userMessage = chatInput.value.trim(); // Get user entered message and remove extra whitespace
-  if (!userMessage) return;
+  userMessage = chatInput.value.trim(); // Get user-entered message and remove extra whitespace
+  if (!userMessage) return; // Prevent sending empty messages
 
   // Clear the input textarea and set its height to default
   chatInput.value = "";
@@ -73,23 +77,33 @@ const handleChat = () => {
     chatbox.scrollTo(0, chatbox.scrollHeight);
     generateResponse(incomingChatLi);
   }, 600);
-}
+};
 
+// Auto-adjust the height of the input textarea based on its content
 chatInput.addEventListener("input", () => {
-  // Adjust the height of the input textarea based on its content
   chatInput.style.height = `${inputInitHeight}px`;
   chatInput.style.height = `${chatInput.scrollHeight}px`;
 });
 
+// Handle the Enter key press to send a message
 chatInput.addEventListener("keydown", (e) => {
-  // If Enter key is pressed without Shift key and the window 
-  // width is greater than 800px, handle the chat
-  if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
-    e.preventDefault();
-    handleChat();
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // Prevent the default behavior of adding a new line
+    handleChat(); // Trigger message sending
   }
 });
 
+// Handle chat button click to send message
 sendChatBtn.addEventListener("click", handleChat);
+
+// Close the chatbot window
 closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+
+// Toggle chatbot visibility
 chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
+
+// Initialize chatbot toggler after document load
+document.addEventListener('DOMContentLoaded', () => {
+  const chatbot = document.querySelector(".chatbot");
+  // Any additional initialization can be done here if needed
+});
